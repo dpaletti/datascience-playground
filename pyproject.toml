@@ -12,3 +12,6 @@ dependencies = [
     "pyzmq>=27.1.0",
     "scipy>=1.17.0",
 ]
+
+[tool.marimo.formatting]
+line_length = 84

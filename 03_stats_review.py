@@ -86,7 +86,7 @@ def _(alt, norm, np, pl):
     custom_norm = norm(loc=mean, scale=std_dev)
     normal_outcomes = np.linspace(custom_norm.ppf(0.001), custom_norm.ppf(0.999), num=100)
     normal_pdf = norm.pdf(normal_outcomes)
-    normal_distribution_df = pl.DataFrame({"outcomes":normal_outcomes, "pdf": normal_pdf})
+    normal_distribution_df = pl.DataFrame({"outcomes": normal_outcomes, "pdf": normal_pdf})
     alt.Chart(normal_distribution_df).mark_bar().encode(x="outcomes", y="pdf")
     return custom_norm, mean, std_dev
 
@@ -105,7 +105,7 @@ def _(mo):
 
 @app.cell
 def _(mean, std_dev):
-    ci_95 = (mean - 2 * std_dev, mean + 2 *std_dev)
+    ci_95 = (mean - 2 * std_dev, mean + 2 * std_dev)
     ci_95
     return
 
@@ -129,7 +129,7 @@ def _(custom_norm):
 
 @app.cell
 def _(mean, std_dev, z):
-    ci_z= (mean - z * std_dev, mean + z *std_dev)
+    ci_z = (mean - z * std_dev, mean + z * std_dev)
     ci_z
     return
 
@@ -137,8 +137,74 @@ def _(mean, std_dev, z):
 @app.cell
 def _(mo):
     mo.md(r"""
-    #TODO: start from hypothesis testing
+    ## Hypothesis testing
+    Test if the mean of the total number of visits is statistically different
     """)
+    return
+
+
+@app.cell
+def _(lead_scoring_df, pl):
+    converted_df = lead_scoring_df.filter(pl.col("Converted").cast(pl.Boolean))
+    not_converted_df = lead_scoring_df.filter(~pl.col("Converted").cast(pl.Boolean))
+    return converted_df, not_converted_df
+
+
+@app.cell
+def _(converted_df, not_converted_df, np):
+    mean_diff: float = (
+        converted_df["TotalVisits"].mean() - not_converted_df["TotalVisits"].mean()
+    )  # type: ignore
+    standard_error_difference: float = np.sqrt(
+        converted_df["TotalVisits"].var() / len(converted_df)
+        + not_converted_df["TotalVisits"].var() / len(not_converted_df)
+    )
+    ci = (
+        mean_diff - 1.96 * standard_error_difference,
+        mean_diff + 1.96 * standard_error_difference,
+    )
+    return ci, mean_diff, standard_error_difference
+
+
+@app.cell
+def _(ci):
+    ci
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    Computing this 95% CI we can safely say that we are 95% confident that the true difference between the converted and non-converted group total visits falls between 0.08 e 0.51
+    """)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    When testing specific hypothesis we go to z statistics, in particular here we want to test the null hypothesis that the difference between the two means is 0
+    """)
+    return
+
+
+@app.cell
+def _(mean_diff: float, standard_error_difference: float):
+    z = mean_diff / standard_error_difference
+    z
+    return (z,)
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    Here we can see that this is at more than 2 standard deviations from the mean (0) which means that we are observing a significant difference, that is we can reject the hypothesis that the two means are equal wih 95% confidence. From the z-value is easy to get the p-value, that is th
+    """)
+    return
+
+
+@app.cell
+def _():
     return
 
 

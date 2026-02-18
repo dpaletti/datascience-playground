@@ -153,11 +153,11 @@ def _(lead_scoring_df, pl):
 @app.cell
 def _(converted_df, not_converted_df, np):
     mean_diff: float = (
-        converted_df["TotalVisits"].mean() - not_converted_df["TotalVisits"].mean()
-    )  # type: ignore
+        converted_df["TotalVisits"].mean() - not_converted_df["TotalVisits"].mean()  # type: ignore
+    )
     standard_error_difference: float = np.sqrt(
-        converted_df["TotalVisits"].var() / len(converted_df)
-        + not_converted_df["TotalVisits"].var() / len(not_converted_df)
+        converted_df["TotalVisits"].var() / len(converted_df)  # type: ignore
+        + not_converted_df["TotalVisits"].var() / len(not_converted_df)  # type: ignore
     )
     ci = (
         mean_diff - 1.96 * standard_error_difference,
@@ -198,13 +198,14 @@ def _(mean_diff: float, standard_error_difference: float):
 @app.cell
 def _(mo):
     mo.md(r"""
-    Here we can see that this is at more than 2 standard deviations from the mean (0) which means that we are observing a significant difference, that is we can reject the hypothesis that the two means are equal wih 95% confidence. From the z-value is easy to get the p-value, that is th
+    Here we can see that this is at more than 2 standard deviations from the mean (0) which means that we are observing a significant difference, that is we can reject the hypothesis that the two means are equal wih 95% confidence. From the z-value is easy to get the p-value, that is the probability of observing data given the null hypothesis is true. To estimate it from the z-statistics we use the survival function which for z on the left of the mean is CDF(x) while on the right is 1 - CDF(x).
     """)
     return
 
 
 @app.cell
-def _():
+def _(norm, z):
+    norm.sf(z)
     return
 
 

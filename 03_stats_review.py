@@ -26,6 +26,7 @@ def _():
     from scipy.stats import norm
     import numpy as np
     import altair as alt
+    alt.data_transformers.enable("vegafusion")
 
     return alt, norm, np, pl
 

@@ -1,4 +1,5 @@
-# Some notebooks to follow Causal Inference for the Brave and True
-[Causal inference for the brave and true](https://matheusfacure.github.io/python-causality-handbook/)
+# Experiments on things
+The main aim of this repository is experimenting with things I find interesting. **Most of the choices I make in this repository are to satisfy my own curiosity**. On this line, I am using [marimo](https://marimo.io/) notebooks and [JJ](https://docs.jj-vcs.dev/latest/) as a git-compatible version control system. I have also experimented with the [Altair](https://altair-viz.github.io/) plotting library but as of today I see it as a good fit for web dashboards but not for notebook-style exploration and development, I will mostly be using plotly.
 
-I am also experimenting with [JJ](https://www.jj-vcs.dev/) version control system, [Marimo](https://marimo.io/) reactive notebooks, and [Altair](https://altair-viz.github.io/) plotting library.
+Notebooks:
+- [causal inference](./notebooks/causal_inference.py): experimentation on causal inference and treatment effect estimation closely following [Causal inference for the brave and true](https://matheusfacure.github.io/python-causality-handbook/) on the [Hillstrom's email dataset](./data/Kevin_Hillstrom_MineThatData_E-MailAnalytics_DataMiningChallenge_2008.03.20.csv). Trying out several implementations along the way.

@@ -385,7 +385,6 @@ def _(cs, pl, prepared_data):
     correlations_long = correlations.with_columns(
         pl.Series("col1", correlations.columns)
     ).unpivot(index="col1", variable_name="col2")
-
     return (correlations_long,)
 
 
@@ -412,7 +411,6 @@ def _(alt, correlations_long):
             ),
         ),
     ).properties(width=alt.Step(50), height=alt.Step(50))
-
     return
 
 
@@ -430,10 +428,9 @@ def _(pl, prepared_data):
         product_gender=pl.when(pl.col("mens") == 1, pl.col("womens") == 1)
         .then(pl.lit("both"))
         .otherwise(
-            pl.when(pl.col("mens") == 1).then(pl.lit("woman")).otherwise(pl.lit("man"))
+            pl.when(pl.col("womens") == 1).then(pl.lit("woman")).otherwise(pl.lit("man"))
         )
     ).drop(["mens", "womens"])
-
     return
 
 

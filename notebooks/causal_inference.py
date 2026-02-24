@@ -233,22 +233,21 @@ def _(mo):
     mo.md(r"""
     ## Graphical causal model
 
-    Treatment (segment) is uniform so segment has no causes.
-
+    Treatment (segment) is uniform so segment has no causes but we look for effect modifiers.
     **Treatment effect assumption**: there is some relation between receiving the email and subsequent visit, conversion and spend
 
     [segment] -> visit/conversion/spend
 
     This will be tested later down the line because there other competing variables we should use as controls.
 
-    **Heterogeneous gender effect assumption**: receiving a mens/womes e-mail having previously bought mens/womens items should have higher effect on conversion, spend and visit
+    **gender effect assumption**: receiving a mens/womes e-mail having previously bought mens/womens items should have higher effect on conversion, spend and visit
 
-    [segment] • [mens] • [women] -> visit/conversion/spend
+    [mens] • [women] -> visit/conversion/spend
 
 
     **Heterogeneous history segment effect assumption**: having spent more in the past year leads to a higher spend when coming back and a higher probability of coming back, we can for now try to work with segments and ignore actual spend, we will use it to check the association with zip_code
 
-    [segment] • [history_segment] -> visit/conversion/spend
+    [history_segment] -> visit/conversion/spend
 
     **(not detected) Zip code effect**: zip code may easily be related to history_segment and channel, as the place you live may be related to both spending power (also in this shop) and how well internet works
 
@@ -263,14 +262,22 @@ def _(mo):
     - channel = "Multichannel", coef=-1.4144 +/- 0.26 with p-value ~0 and intercept -1.5: new customers tend to buy both from internet and phone (reasonable, data comes from 2006)
 
     [newbie] -> [history_segment]
-    - we are able to detect a reliable negative effect for history segments 1 to 3 that pushes newbie into the 0 category the one from (0, 100). From here we can preliminary hypothesize that newbies tend to spend less
+    - we are able to detect a reliable negative effect for history segments 1 to 3 that pushes newbie into the 0 category the one from (0, 100). From here we can preliminary hypothesize that newbies tend to spend less. All other categories have too few samples for P-values to be meaningful in this preliminary phase.
 
-    **heterogeneous recency effect**: months since last purchase for sure is expected to correlate with visit/conversion/spend
+    **recency effect**: months since last purchase for sure is expected to correlate with visit/conversion/spend
 
-    [segment] • [recency] -> visit/conversion/spend
+    [recency] -> visit/conversion/spend
 
     **correlations**:
     To probe for other relationships we ran a correlation matrix and we found that someone who buys male products does not buy women ones and viceversa. In particular 10% of the customers buy both, all the others buy either male or female. This leads to **restructuring that column in 3-category columns product_gender (male, female, both)**.
+
+    **non compliance**:
+    the e-mail were sent but we may well think of the treatment if someone at least opened that email. This means that the treatment is not actually random:
+    - not opening the email (e.g. spam folder, rule to thrash promotional emails, burner email)
+    - seeing the email then thrashing it
+    - opening the email, realising what it is (maybe seeing some ad picture) then thrasing it
+    - reading through the email
+    This means the estimates will be ITT (intent-to-treat) and likely conservative, we are diluting the effect of treatment between compliant and non-compliant.
     """)
     return
 
@@ -304,18 +311,6 @@ def _(pl, prepared_data, smf):
         ).to_pandas(),
     ).fit()
     channel_zip_code.summary().tables[1]
-    return
-
-
-@app.cell
-def _(pl, prepared_data, smf):
-    zip_code_channel_history = smf.mnlogit(
-        "zip_code_int ~ C(channel) + C(history_segment)",
-        data=prepared_data.with_columns(
-            zip_code_int=pl.col("zip_code").to_physical()
-        ).to_pandas(),
-    ).fit()
-    zip_code_channel_history.summary().tables[1]
     return
 
 
@@ -363,7 +358,7 @@ def _(pl, prepared_data, smf):
         data=prepared_data.with_columns(
             history_segment_int=(pl.col("history_segment").to_physical())
         )
-        .filter(pl.col("history_segment_int") <= 4)
+        .filter(pl.col("history_segment_int"))
         .to_pandas(),
     ).fit()
 

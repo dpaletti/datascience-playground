@@ -9,6 +9,7 @@ dependencies = [
     "dowhy>=0.14",
     "marimo>=0.19.11",
     "numpy>=2.4.2",
+    "pgmpy>=1.0.0",
     "plotly>=6.5.2",
     "polars>=1.38.1",
     "pyarrow>=23.0.1",
@@ -23,3 +24,12 @@ dependencies = [
 
 [tool.marimo.display]
 dataframe_profile_row_limit = 100000
+
+[dependency-groups]
+dev = [
+    "python-lsp-ruff>=2.3.0",
+    "python-lsp-server>=1.14.0",
+    "ruff>=0.15.2",
+    "ty>=0.0.18",
+    "websockets>=16.0",
+]

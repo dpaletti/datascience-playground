@@ -1,0 +1,221 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.19.11"
+  },
+  "cells": [
+    {
+      "id": "Hbol",
+      "code_hash": "3525863165e234806519754829111271",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h1 id=\"causal-inference\">Causal inference</h1></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "MJUe",
+      "code_hash": "2d534b06a38f573419de7fa503cb87e9",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">This notebook contains practice code for <a href=\"https://matheusfacure.github.io/python-causality-handbook/landing-page.html\" rel=\"noopener noreferrer\" target=\"_blank\">Causal inference for the brave and True</a>.</span>\n<span class=\"paragraph\">I am using <a href=\"https://blog.minethatdata.com/2008/03/minethatdata-e-mail-analytics-and-data.html\" rel=\"noopener noreferrer\" target=\"_blank\">Hillstrom's dataset</a> for email campaigns to assess the methods.</span>\n<span class=\"paragraph\">This dataset contains 64,000 customers who last purchased within twelve months. The customers were involved in an e-mail test.</span>\n<ul>\n<li>1/3 were randomly chosen to receive an e-mail campaign featuring Mens merchandise.</li>\n<li>1/3 were randomly chosen to receive an e-mail campaign featuring Womens merchandise.</li>\n<li>1/3 were randomly chosen to not receive an e-mail campaign.\nDuring a period of two weeks following the e-mail campaign, results were tracked.</li>\n</ul>\n<span class=\"paragraph\">Historical customer attributes:</span>\n<ul>\n<li>recency: months since last purchase.</li>\n<li>history_segment (7 segments): categorization of dollars spent in the past year.</li>\n<li>history: actual dollar value spent in the past year.</li>\n<li>mens (1/0 indicator): 1 = customer purchased mens merchandise in the past year.</li>\n<li>womens (1/0 indicator): 1 = customer purchased Womens merchandise in the past year.</li>\n<li>zip_code (1/0 indicator): classifies zip code as Urban, Surburban, or Rural.</li>\n<li>newbie (1/0 indicator): 1 = New customer in the past twelve months.</li>\n<li>channel (\"Phone\", \"Web\", \"Multichannel\"): describes the channels the customer purchased from in the past year.</li>\n<li><strong>segment</strong> (Mens E-Mail, Womens E-Mail, No E-Mail): the email that the customer received</li>\n</ul>\n<span class=\"paragraph\">Attributes describing customer behaviour after the e-mail campaign:</span>\n<ul>\n<li>visit (1/0 indicator): customer visited website in the following two weeks</li>\n<li>conversion (1/0 indicator): customer purchased merchandise in the following two weeks</li>\n<li>spend (1/0 indicator): actual dollar spent in the following two weeks</li>\n</ul>\n<span class=\"paragraph\"><strong>Overarching question</strong>: Was the e-mail campaign succesfull?</span>\n<span class=\"paragraph\"><strong>Questions</strong>:</span>\n<ul>\n<li>Which e-mail campaign performed the best, the Mens version, or the Womens version?</li>\n<li>How much incremental sales per customer did the Mens version of the e-mail campaign drive? How much incremental sales per customer did the Womens version of the e-mail campaign drive?</li>\n<li>If you could only send an e-mail campaign to the best 10,000 customers, which customers would receive the e-mail campaign? Why?</li>\n<li>If you had to eliminate 10,000 customers from receiving an e-mail campaign, which customers would you suppress from the campaign? Why?</li>\n<li>Did the Mens version of the e-mail campaign perform different than the Womens version of the e-mail campaign, across various customer segments?</li>\n<li>Did the campaigns perform different when measured across different metrics, like Visitors, Conversion, and Total Spend?</li>\n<li>Did you observe any anomalies, or odd findings?</li>\n<li>Which audience would you target the Mens version to, and the Womens version to, given the results of the test? What data do you have to support your recommendation?</li>\n</ul></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "532dfbe43dcc88685be3099cfd266eb6",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"imports\">Imports</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "f6a0cad0749361e87c71f86db3a5eb7e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<pre class='text-xs'>DataTransformerRegistry.enable(&#x27;vegafusion&#x27;)</pre>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "2a637630998b24462de6b0a1d184b509",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"reading\">Reading</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "25337107f6d7ec8421a075f8017bf0e0",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "c5130f5567d3252967164b4b888261bb",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "SFPL",
+      "code_hash": "4ba3140bbd48ef6e8c760d4fc1cb9963",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "BYtC",
+      "code_hash": "cc867ec4128c13ef629b87bfc2945570",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"preliminary-analysis\">Preliminary Analysis</h2></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "RGSE",
+      "code_hash": "787c111cb01258f02a7d5129bc8556b5",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><ul>\n<li>recency: bimodal distribution, customers tend to come back after 9, 10 months</li>\n<li>history_segment: power law, there are more customers with low spending than customers whith high spending (the intervals have left-side closed)</li>\n<li>history: very concentrated on low spending, most of the customers (95%) spend less than $561 and 75% of the customers are under $325, this is quite clear from the segment representation while from the history itself is not very clear as the maximum is at $3.4k (which is not to be considered an outlier but just a rare case)</li>\n<li>mens, womens: balanced representation of men and women merchandise spending</li>\n<li>zip code: slight under-representation of rural areas but in general prettu balanced</li>\n<li>newbie: balanced representation of new and old (more than 1y maturity) customers</li>\n<li>channel: slight under representation of multi-channel customers</li>\n<li>segment: treatment is uniform among mens and womens, we also have untreated</li>\n</ul>\n<span class=\"paragraph\">As expected after the campaign we have a noticeable amount of visits (not necessarily driven by the campaign), and as we would expect a small subset of these visits finalized a buy (conversion).</span>\n<span class=\"paragraph\"><strong>Preliminary cleaning</strong>:</span>\n<ul>\n<li>we bin the spend column with the same bins of history segment</li>\n<li>we clean the bins so that history and spend segment bins are the same and explicit</li>\n</ul></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Kclp",
+      "code_hash": "11ab20c8f154dc06b538416a00d44534",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">History has 90% of the values represented under 561 but then values shoot up to 3345</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "emfo",
+      "code_hash": "833d21600557c7c79158843e4812eec2",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Spend has 99% of the values at 0. Among the remaining ones we see that 59% is between 0 and 100, 24% between 100 and 200, 10% between 200 and 350 and a residual 5% between 350 and 500. As we would expect, spend is 0 when conversion is 0. With respect to the usual spending we see a bit less spending, this is usually to be expected.</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Hstk",
+      "code_hash": "0f849ca43d434d94b676e33254a8fa9f",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "nWHF",
+      "code_hash": "ef7f2071ad31dd0c0fb6fe79e8d99482",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='nWHF-0' random-id='4a377283-6b81-822c-2051-64d1aaa2418e'><marimo-table data-initial-value='[]' data-label='null' data-data='&quot;[{&#92;&quot;recency&#92;&quot;:10,&#92;&quot;history_segment&#92;&quot;:&#92;&quot;[100, 200)&#92;&quot;,&#92;&quot;history&#92;&quot;:142.44000244140625,&#92;&quot;mens&#92;&quot;:1,&#92;&quot;womens&#92;&quot;:0,&#92;&quot;zip_code&#92;&quot;:&#92;&quot;Surburban&#92;&quot;,&#92;&quot;newbie&#92;&quot;:0,&#92;&quot;channel&#92;&quot;:&#92;&quot;Phone&#92;&quot;,&#92;&quot;segment&#92;&quot;:&#92;&quot;Womens E-Mail&#92;&quot;,&#92;&quot;visit&#92;&quot;:0,&#92;&quot;conversion&#92;&quot;:0,&#92;&quot;spend&#92;&quot;:0.0,&#92;&quot;spend_segment&#92;&quot;:&#92;&quot;=0&#92;&quot;},{&#92;&quot;recency&#92;&quot;:6,&#92;&quot;history_segment&#92;&quot;:&#92;&quot;[200, 350)&#92;&quot;,&#92;&quot;history&#92;&quot;:329.0799865722656,&#92;&quot;mens&#92;&quot;:1,&#92;&quot;womens&#92;&quot;:1,&#92;&quot;zip_code&#92;&quot;:&#92;&quot;Rural&#92;&quot;,&#92;&quot;newbie&#92;&quot;:1,&#92;&quot;channel&#92;&quot;:&#92;&quot;Web&#92;&quot;,&#92;&quot;segment&#92;&quot;:&#92;&quot;No E-Mail&#92;&quot;,&#92;&quot;visit&#92;&quot;:0,&#92;&quot;conversion&#92;&quot;:0,&#92;&quot;spend&#92;&quot;:0.0,&#92;&quot;spend_segment&#92;&quot;:&#92;&quot;=0&#92;&quot;},{&#92;&quot;recency&#92;&quot;:7,&#92;&quot;history_segment&#92;&quot;:&#92;&quot;[100, 200)&#92;&quot;,&#92;&quot;history&#92;&quot;:180.64999389648438,&#92;&quot;mens&#92;&quot;:0,&#92;&quot;womens&#92;&quot;:1,&#92;&quot;zip_code&#92;&quot;:&#92;&quot;Surburban&#92;&quot;,&#92;&quot;newbie&#92;&quot;:1,&#92;&quot;channel&#92;&quot;:&#92;&quot;Web&#92;&quot;,&#92;&quot;segment&#92;&quot;:&#92;&quot;Womens E-Mail&#92;&quot;,&#92;&quot;visit&#92;&quot;:0,&#92;&quot;conversion&#92;&quot;:0,&#92;&quot;spend&#92;&quot;:0.0,&#92;&quot;spend_segment&#92;&quot;:&#92;&quot;=0&#92;&quot;},{&#92;&quot;recency&#92;&quot;:9,&#92;&quot;history_segment&#92;&quot;:&#92;&quot;[500, 750)&#92;&quot;,&#92;&quot;history&#92;&quot;:675.8300170898438,&#92;&quot;mens&#92;&quot;:1,&#92;&quot;womens&#92;&quot;:0,&#92;&quot;zip_code&#92;&quot;:&#92;&quot;Rural&#92;&quot;,&#92;&quot;newbie&#92;&quot;:1,&#92;&quot;channel&#92;&quot;:&#92;&quot;Web&#92;&quot;,&#92;&quot;segment&#92;&quot;:&#92;&quot;Mens E-Mail&#92;&quot;,&#92;&quot;visit&#92;&quot;:0,&#92;&quot;conversion&#92;&quot;:0,&#92;&quot;spend&#92;&quot;:0.0,&#92;&quot;spend_segment&#92;&quot;:&#92;&quot;=0&#92;&quot;},{&#92;&quot;recency&#92;&quot;:2,&#92;&quot;history_segment&#92;&quot;:&#92;&quot;(0, 100)&#92;&quot;,&#92;&quot;history&#92;&quot;:45.34000015258789,&#92;&quot;mens&#92;&quot;:1,&#92;&quot;womens&#92;&quot;:0,&#92;&quot;zip_code&#92;&quot;:&#92;&quot;Urban&#92;&quot;,&#92;&quot;newbie&#92;&quot;:0,&#92;&quot;channel&#92;&quot;:&#92;&quot;Web&#92;&quot;,&#92;&quot;segment&#92;&quot;:&#92;&quot;Womens E-Mail&#92;&quot;,&#92;&quot;visit&#92;&quot;:0,&#92;&quot;conversion&#92;&quot;:0,&#92;&quot;spend&#92;&quot;:0.0,&#92;&quot;spend_segment&#92;&quot;:&#92;&quot;=0&#92;&quot;},{&#92;&quot;recency&#92;&quot;:6,&#92;&quot;history_segment&#92;&quot;:&#92;&quot;[100, 200)&#92;&quot;,&#92;&quot;history&#92;&quot;:134.8300018310547,&#92;&quot;mens&#92;&quot;:0,&#92;&quot;womens&#92;&quot;:1,&#92;&quot;zip_code&#92;&quot;:&#92;&quot;Surburban&#92;&quot;,&#92;&quot;newbie&#92;&quot;:0,&#92;&quot;channel&#92;&quot;:&#92;&quot;Phone&#92;&quot;,&#92;&quot;segment&#92;&quot;:&#92;&quot;Womens E-Mail&#92;&quot;,&#92;&quot;visit&#92;&quot;:1,&#92;&quot;conversion&#92;&quot;:0,&#92;&quot;spend&#92;&quot;:0.0,&#92;&quot;spend_segment&#92;&quot;:&#92;&quot;=0&#92;&quot;},{&#92;&quot;recency&#92;&quot;:9,&#92;&quot;history_segment&#92;&quot;:&#92;&quot;[200, 350)&#92;&quot;,&#92;&quot;history&#92;&quot;:280.20001220703125,&#92;&quot;mens&#92;&quot;:1,&#92;&quot;womens&#92;&quot;:0,&#92;&quot;zip_code&#92;&quot;:&#92;&quot;Surburban&#92;&quot;,&#92;&quot;newbie&#92;&quot;:1,&#92;&quot;channel&#92;&quot;:&#92;&quot;Phone&#92;&quot;,&#92;&quot;segment&#92;&quot;:&#92;&quot;Womens E-Mail&#92;&quot;,&#92;&quot;visit&#92;&quot;:0,&#92;&quot;conversion&#92;&quot;:0,&#92;&quot;spend&#92;&quot;:0.0,&#92;&quot;spend_segment&#92;&quot;:&#92;&quot;=0&#92;&quot;},{&#92;&quot;recency&#92;&quot;:9,&#92;&quot;history_segment&#92;&quot;:&#92;&quot;(0, 100)&#92;&quot;,&#92;&quot;history&#92;&quot;:46.41999816894531,&#92;&quot;mens&#92;&quot;:0,&#92;&quot;womens&#92;&quot;:1,&#92;&quot;zip_code&#92;&quot;:&#92;&quot;Urban&#92;&quot;,&#92;&quot;newbie&#92;&quot;:0,&#92;&quot;channel&#92;&quot;:&#92;&quot;Phone&#92;&quot;,&#92;&quot;segment&#92;&quot;:&#92;&quot;Womens E-Mail&#92;&quot;,&#92;&quot;visit&#92;&quot;:0,&#92;&quot;conversion&#92;&quot;:0,&#92;&quot;spend&#92;&quot;:0.0,&#92;&quot;spend_segment&#92;&quot;:&#92;&quot;=0&#92;&quot;},{&#92;&quot;recency&#92;&quot;:9,&#92;&quot;history_segment&#92;&quot;:&#92;&quot;[500, 750)&#92;&quot;,&#92;&quot;history&#92;&quot;:675.0700073242188,&#92;&quot;mens&#92;&quot;:1,&#92;&quot;womens&#92;&quot;:1,&#92;&quot;zip_code&#92;&quot;:&#92;&quot;Rural&#92;&quot;,&#92;&quot;newbie&#92;&quot;:1,&#92;&quot;channel&#92;&quot;:&#92;&quot;Phone&#92;&quot;,&#92;&quot;segment&#92;&quot;:&#92;&quot;Mens E-Mail&#92;&quot;,&#92;&quot;visit&#92;&quot;:0,&#92;&quot;conversion&#92;&quot;:0,&#92;&quot;spend&#92;&quot;:0.0,&#92;&quot;spend_segment&#92;&quot;:&#92;&quot;=0&#92;&quot;},{&#92;&quot;recency&#92;&quot;:10,&#92;&quot;history_segment&#92;&quot;:&#92;&quot;(0, 100)&#92;&quot;,&#92;&quot;history&#92;&quot;:32.84000015258789,&#92;&quot;mens&#92;&quot;:0,&#92;&quot;womens&#92;&quot;:1,&#92;&quot;zip_code&#92;&quot;:&#92;&quot;Urban&#92;&quot;,&#92;&quot;newbie&#92;&quot;:1,&#92;&quot;channel&#92;&quot;:&#92;&quot;Web&#92;&quot;,&#92;&quot;segment&#92;&quot;:&#92;&quot;Womens E-Mail&#92;&quot;,&#92;&quot;visit&#92;&quot;:0,&#92;&quot;conversion&#92;&quot;:0,&#92;&quot;spend&#92;&quot;:0.0,&#92;&quot;spend_segment&#92;&quot;:&#92;&quot;=0&#92;&quot;}]&quot;' data-total-rows='64000' data-total-columns='13' data-max-columns='50' data-banner-text='&quot;&quot;' data-pagination='true' data-page-size='10' data-field-types='[[&quot;recency&quot;,[&quot;integer&quot;,&quot;u64&quot;]],[&quot;history_segment&quot;,[&quot;string&quot;,&quot;enum&quot;]],[&quot;history&quot;,[&quot;number&quot;,&quot;f32&quot;]],[&quot;mens&quot;,[&quot;integer&quot;,&quot;u8&quot;]],[&quot;womens&quot;,[&quot;integer&quot;,&quot;u8&quot;]],[&quot;zip_code&quot;,[&quot;string&quot;,&quot;enum&quot;]],[&quot;newbie&quot;,[&quot;integer&quot;,&quot;u8&quot;]],[&quot;channel&quot;,[&quot;string&quot;,&quot;enum&quot;]],[&quot;segment&quot;,[&quot;string&quot;,&quot;enum&quot;]],[&quot;visit&quot;,[&quot;integer&quot;,&quot;u8&quot;]],[&quot;conversion&quot;,[&quot;integer&quot;,&quot;u8&quot;]],[&quot;spend&quot;,[&quot;number&quot;,&quot;f32&quot;]],[&quot;spend_segment&quot;,[&quot;string&quot;,&quot;enum&quot;]]]' data-show-filters='true' data-show-download='true' data-show-column-summaries='true' data-show-data-types='true' data-show-page-size-selector='true' data-show-column-explorer='true' data-show-chart-builder='true' data-row-headers='[]' data-has-stable-row-id='false' data-lazy='false' data-preload='false' data-download-file-name='&quot;df&quot;'></marimo-table></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "iLit",
+      "code_hash": "29d170d3333d65e2ed26cc826feff588",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><h2 id=\"graphical-causal-model\">Graphical causal model</h2>\n<span class=\"paragraph\">Treatment (segment) is uniform so segment has no causes.</span>\n<span class=\"paragraph\"><strong>Treatment effect assumption</strong>: there is some relation between receiving the email and subsequent visit, conversion and spend</span>\n<span class=\"paragraph\">[segment] -&gt; visit/conversion/spend</span>\n<span class=\"paragraph\"><strong>Heterogeneous gender effect assumption</strong>: receiving a mens/womes e-mail having previously bought mens/womens items should have higher effect on conversion, spend and visit</span>\n<span class=\"paragraph\">[segment] \u2022 [mens] \u2022 [women] -&gt; visit/conversion/spend</span>\n<span class=\"paragraph\"><strong>Heterogeneous history segment effect assumption</strong>: having spent more in the past year leads to a higher spend when coming back and a higher probability of coming back, we can for now try to work with segments and ignore actual spend</span>\n<span class=\"paragraph\">[segment] \u2022 [history_segment] -&gt; visit/conversion/spend</span>\n<span class=\"paragraph\"><strong>Zip code effect</strong>: zip code may easily be related to history_segment and channel, as the place you live may be related to both spending power (also in this shop) and how well internet works</span>\n<span class=\"paragraph\">[zip_code] -&gt; [history_segment]\n[zip_code] -&gt; [channel]</span>\n<span class=\"paragraph\"><strong>newbie effect</strong>: we expect new customers to be coming preferably from the web and in general have a lower spending</span>\n<span class=\"paragraph\">[newbie] -&gt; [channel]\n[newbie] -&gt; [history_segment]</span>\n<span class=\"paragraph\"><strong>heterogeneous recency effect</strong>: months since last purchase for sure is expected to correlate with visit/conversion/spend</span>\n<span class=\"paragraph\">[segment] \u2022 [recency] -&gt; visit/conversion/spend</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ZHCJ",
+      "code_hash": null,
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "ROlb",
+      "code_hash": "9d99712651d9418c8cb21d5aa4f7ad12",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": [
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "=======================================================================================================================\n                                                          coef    std err          t      P>|t|      [0.025      0.975]\n-----------------------------------------------------------------------------------------------------------------------\nIntercept                                               0.6528      0.103      6.338      0.000       0.451       0.855\nC(segment, Treatment('No E-Mail'))[T.Womens E-Mail]     0.4244      0.146      2.917      0.004       0.139       0.710\nC(segment, Treatment('No E-Mail'))[T.Mens E-Mail]       0.7698      0.146      5.285      0.000       0.484       1.055\n=======================================================================================================================\n",
+          "mimetype": "text/plain"
+        }
+      ]
+    },
+    {
+      "id": "TqIu",
+      "code_hash": null,
+      "outputs": [],
+      "console": []
+    }
+  ]
+}

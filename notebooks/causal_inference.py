@@ -424,8 +424,21 @@ def _(pl, prepared_data):
         .then(pl.lit("both"))
         .otherwise(
             pl.when(pl.col("womens") == 1).then(pl.lit("woman")).otherwise(pl.lit("man"))
-        )
+        ),
+        email_sent=pl.when(pl.col("segment") == "No E-Mail").then(pl.lit(0)).otherwise(1),
+        women_email_sent=pl.when(pl.col("segment") == "Womens E-Mail")
+        .then(pl.lit(1))
+        .otherwise(0),
+        men_email_sent=pl.when(pl.col("segment") == "Mens E-Mail")
+        .then(pl.lit(1))
+        .otherwise(0),
     ).drop(["mens", "womens"])
+    return (cleaned_data,)
+
+
+@app.cell
+def _(cleaned_data):
+    cleaned_data
     return
 
 
@@ -433,15 +446,41 @@ def _(pl, prepared_data):
 def _(mo):
     mo.md(r"""
     ## OLS effect estimation
+
+    We are estimating the effect for sending the e-mail, sending the women e-mail, and the man email.
+
+    **sending the email**:
+    - visits: 6.49% (+/- 0.3%) increase in visits
+    - _TODO_: finish the sending e-mail analysis with the other two measures and go on to women and man email
     """)
     return
 
 
 @app.cell
-def _(mo):
-    mo.md(r"""
- 
-    """)
+def _(cleaned_data, smf):
+    general_visit_model = smf.logit(
+        """visit ~ email_sent 
+                           + recency 
+                           + newbie 
+                           + C(history_segment, Treatment(reference='(0, 100)'))
+                           + C(zip_code, Treatment(reference='Urban')) 
+                           + C(channel, Treatment(reference='Multichannel')) 
+                           + C(product_gender, Treatment(reference='both'))
+                """,
+        data=cleaned_data.to_pandas(),
+    ).fit(solver="lbfgs", max_iter=500)
+    return (general_visit_model,)
+
+
+@app.cell
+def _(general_visit_model):
+    general_visit_model.get_margeff().summary().tables[1]
+
+    return
+
+
+@app.cell
+def _():
     return
 
 
